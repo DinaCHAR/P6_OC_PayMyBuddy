@@ -3,37 +3,35 @@ package com.openclassrooms.paymybuddy.service;
 import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service // Indique que c’est un service métier géré par Spring
+import java.util.Optional;
+
+@Service // Indique que cette classe contient la logique métier
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository; // Injection du repository pour interagir avec la base de données
-    
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private UserRepository userRepository;
 
-
+    // Crée un nouvel utilisateur et le sauvegarde en base de données
     public UserModel createUser(String username, String email, String password) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("Un utilisateur avec cet email existe déjà");
-        }
-
-        // 🔐 Encode le mot de passe avant de le sauvegarder
-        String encodedPassword = passwordEncoder.encode(password);
-        UserModel user = new UserModel(username, email, encodedPassword);
-        return userRepository.save(user);
+        UserModel user = new UserModel(username, email, password);
+        return userRepository.save(user); // persist dans la base
     }
 
+    // Recherche d’un utilisateur par email (retourne null si pas trouvé)
     public UserModel findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Optional<UserModel> optionalUser = userRepository.findByEmail(email);
+        return optionalUser.orElse(null); // retourne null si absent
     }
 
-    // Vérifie le mot de passe au login
-    public boolean checkPassword(String email, String rawPassword) {
-        UserModel user = findByEmail(email);
-        return passwordEncoder.matches(rawPassword, user.getPassword());
+    // Vérifie si un utilisateur avec cet email et mot de passe existe
+    public boolean checkPassword(String email, String password) {
+        Optional<UserModel> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            UserModel user = optionalUser.get();
+            return user.getPassword().equals(password);
+        }
+        return false;
     }
 }
