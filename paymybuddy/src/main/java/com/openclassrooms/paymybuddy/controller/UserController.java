@@ -2,7 +2,6 @@ package com.openclassrooms.paymybuddy.controller;
 
 import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.service.UserService;
-import com.openclassrooms.paymybuddy.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +16,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private JwtService jwtService; // Service pour gérer la génération du JWT
 
     /**
      * Endpoint pour l'inscription d’un nouvel utilisateur.
@@ -50,13 +47,12 @@ public class UserController {
         String password = credentials.get("password");
 
         if (userService.checkPassword(email, password)) {
-            // Génère un JWT à partir de l'email de l'utilisateur
-            String token = jwtService.generateToken(email);
-            return ResponseEntity.ok(token); // Retourne le token JWT au client
+            return ResponseEntity.ok("Connexion réussie.");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Identifiants incorrects.");
         }
     }
+
 
     /**
      * Endpoint pour récupérer un utilisateur à partir de son email.

@@ -3,7 +3,7 @@ package com.openclassrooms.paymybuddy;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = "com.openclassroom.api")
+@SpringBootApplication(scanBasePackages = "com.openclassrooms.paymybuddy")
 public class PaymybuddyApplication {
 
 	public static void main(String[] args) {
