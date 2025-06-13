@@ -53,7 +53,11 @@ public class SecurityConfig {
 					            "/api/transactions/user",
 					            "/api/transactions/all",
 					            "/api/account/**",
-					            "/api/connections/**"
+					            "/api/connections/**",
+					            "/login", 
+					            "/profile", 
+					            "/profile/edit", 
+					            "/profile/save"
 					        ).permitAll()
 
 						// Toute autre requête doit être authentifiée

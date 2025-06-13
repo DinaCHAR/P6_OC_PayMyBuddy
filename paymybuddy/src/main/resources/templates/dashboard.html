@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Tableau de bord</title></head>
+	<body>
+		<nav>
+		    Pay My Buddy |
+		    <a th:href="@{/dashboard}" style="font-weight:bold;">Transférer</a> |
+		    <a th:href="@{/profile}">Profil</a> |
+		    <a th:href="@{/add-connection}">Ajouter relation</a> |
+		    <a th:href="@{/logout}">Se déconnecter</a>
+		</nav>
+	<br/>
+			<form th:action="@{/transfer}" method="post">
+			    <select name="receiverMail"><option>Choisir un contact</option></select>
+			    <input type="text" name="description" placeholder="Description" />
+			    <input type="number" name="amount" placeholder="0€" />
+			    <button type="submit">Payer</button>
+			</form>
+	<h3>Mes Transactions</h3>
+		<table>
+			<thead><tr><th>Relations</th><th>Description</th><th>Montant</th></tr></thead>
+				<tbody>
+					<tr><td>Laure-Anne</td><td>Restaurant</td><td>10€</td></tr>
+					<tr><td>Clara</td><td>Voyage</td><td>25€</td></tr>
+					<tr><td>Luc</td><td>Billets de cinéma</td><td>8€</td></tr>
+				</tbody>
+		</table>
+	</body>
+</html>

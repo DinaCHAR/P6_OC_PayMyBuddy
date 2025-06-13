@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil - Pay My Buddy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        nav {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: black;
+        }
+        nav a.active {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 60px;
+        }
+        .profile-box {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: left;
+            width: 400px;
+        }
+        .profile-item {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+        .label {
+            display: inline-block;
+            width: 120px;
+        }
+        .modify-btn {
+            background-color: #f9a825;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <div>Pay My Buddy</div>
+    <div>
+        <a href="/dashboard">Transférer</a>
+        <a href="/profile" class="active">Profil</a>
+        <a href="/add-connection">Ajouter relation</a>
+        <a href="/logout">Se déconnecter</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="profile-box">
+        <div class="profile-item"><span class="label">Username</span> <span>@username</span></div>
+        <div class="profile-item"><span class="label">Mail</span> <span th:text="${user.email}">email@test.com</span></div>
+        <div class="profile-item"><span class="label">Mot de passe</span> <span>mot de passe</span></div>
+        <form th:action="@{/profile/edit}" method="get">
+		    <input type="hidden" name="email" th:value="${user.email}" />
+		    <button type="submit" class="modify-btn">Modifier</button>
+		</form>
+    </div>
+</div>
+</body>
+</html>

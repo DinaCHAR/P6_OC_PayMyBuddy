@@ -43,4 +43,8 @@ public class UserService {
             throw new IllegalArgumentException("Solde insuffisant.");
         }
     }
+
+	public void updateUser(UserModel user) {
+		userRepository.save(user);
+	}
 }

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Modifier Profil</title></head>
+<body>
+<h2>Modifier vos informations</h2>
+<form th:action="@{/profile/save}" method="get">
+    <input type="hidden" name="email" th:value="${user.email}" />
+    <label>Mot de passe :</label>
+    <input type="password" name="password" required th:value="${user.password}" />
+    <br/>
+    <br/>
+    <button type="submit">Enregistrer</button>
+</form>
+</body>
+</html>
