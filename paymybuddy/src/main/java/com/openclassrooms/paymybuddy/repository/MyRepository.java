@@ -20,6 +20,4 @@ public class MyRepository {
 			// TODO Auto-generated method stub
 			
 		}
-		
-
-}
+	}

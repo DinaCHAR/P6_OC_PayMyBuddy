@@ -1,5 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.dto.ConnectionDTO;
+import com.openclassrooms.paymybuddy.dto.ConnectionResponseDTO;
 import com.openclassrooms.paymybuddy.model.ConnectionModel;
 import com.openclassrooms.paymybuddy.service.ConnectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +30,9 @@ public class ConnectionController {
 	  * @return Message de succès ou d’échec
 	  */
 	 @PostMapping("/add")
-	 public ResponseEntity<String> addConnection(@RequestBody Map<String, String> emails) {
-	     String userEmail = emails.get("userEmail");
-	     String connectionEmail = emails.get("connectionEmail");
+	 public ResponseEntity<String> addConnection(@RequestBody ConnectionDTO dto) {
+	     String userEmail = dto.getUserEmail();
+	     String connectionEmail = dto.getConnectionEmail();
 	
 	     // Appel du service pour ajouter la connexion
 	     if (connectionService.addConnection(userEmail, connectionEmail)) {
@@ -48,9 +50,17 @@ public class ConnectionController {
 	  * @return Liste des connexions liées à cet utilisateur
 	  */
 	 @GetMapping
-	 public ResponseEntity<List<ConnectionModel>> getConnections(@RequestParam String email) {
-	     // Appel du service pour récupérer les connexions
+	 public ResponseEntity<List<ConnectionResponseDTO>> getConnections(@RequestParam("email") String email) {
 	     List<ConnectionModel> connections = connectionService.getConnections(email);
-	     return ResponseEntity.ok(connections);
+
+	     // Transformer la liste en DTOs
+	     List<ConnectionResponseDTO> responseList = connections.stream()
+	         .map(c -> new ConnectionResponseDTO(
+	             c.getUser().getEmail(),
+	             c.getConnection().getEmail()
+	         ))
+	         .toList();
+
+	     return ResponseEntity.ok(responseList);
 	 }
-	}
+}

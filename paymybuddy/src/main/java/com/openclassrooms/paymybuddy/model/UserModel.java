@@ -1,65 +1,89 @@
 package com.openclassrooms.paymybuddy.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class UserModel {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
     private String password;
+    private double balance;
 
-    // Constructeur pour initialiser les propriétés
-    public UserModel(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
+    @ManyToMany
+    @JoinTable(
+        name = "user_connection",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "connection_id")
+    )
+    private List<UserModel> connections;
 
-    public Integer getId() {
-        return id;
-    }
+    public Long getId() {
+		return id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = (long) id;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public double getBalance() {
+		return balance;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+
+	public List<UserModel> getConnections() {
+		return connections;
+	}
+
+	public void setConnections(List<UserModel> connections) {
+		this.connections = connections;
+	}
+
+	public List<TransactionModel> getSentTransactions() {
+		return sentTransactions;
+	}
+
+	public void setSentTransactions(List<TransactionModel> sentTransactions) {
+		this.sentTransactions = sentTransactions;
+	}
+
+	public List<TransactionModel> getReceivedTransactions() {
+		return receivedTransactions;
+	}
+
+	public void setReceivedTransactions(List<TransactionModel> receivedTransactions) {
+		this.receivedTransactions = receivedTransactions;
+	}
+
+	@OneToMany(mappedBy = "sender")
+    private List<TransactionModel> sentTransactions;
+
+    @OneToMany(mappedBy = "receiver")
+    private List<TransactionModel> receivedTransactions;
+
+    // Getters and setters
 }

@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.service;
 
+import com.openclassrooms.paymybuddy.dto.TransactionDTO;
 import com.openclassrooms.paymybuddy.model.TransactionModel;
 import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.repository.TransactionRepository;
@@ -7,6 +8,8 @@ import com.openclassrooms.paymybuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,29 +21,47 @@ public class TransactionService {
     @Autowired
     private UserRepository userRepository;
 
-    // Effectuer une nouvelle transaction entre un utilisateur et un autre
-    public TransactionModel createTransaction(String senderEmail, String receiverEmail, Double amount, String description, String date) {
-        // Recherche des utilisateurs par email
-        UserModel sender = userRepository.findByEmail(senderEmail).orElse(null);
-        UserModel receiver = userRepository.findByEmail(receiverEmail).orElse(null);
+    public TransactionModel transfer(UserModel sender, UserModel receiver, double amount, String description) {
+        double fee = amount * 0.005;
+        double total = amount + fee;
 
-        if (sender == null || receiver == null) {
-            throw new IllegalArgumentException("L'un des utilisateurs n'existe pas");
+        if (sender.getBalance() < total) {
+            throw new IllegalArgumentException("Solde insuffisant pour effectuer la transaction.");
         }
 
-        // Créer et sauvegarder la transaction
-        TransactionModel transaction = new TransactionModel(sender, receiver, amount, description, date);
+        sender.setBalance(sender.getBalance() - total);
+        receiver.setBalance(receiver.getBalance() + amount);
+
+        userRepository.save(sender);
+        userRepository.save(receiver);
+
+        TransactionModel transaction = new TransactionModel();
+        transaction.setSender(sender);
+        transaction.setReceiver(receiver);
+        transaction.setAmount(amount);
+        transaction.setFee(fee);
+        transaction.setDescription(description);
+        transaction.setDate(LocalDateTime.now());
+
         return transactionRepository.save(transaction);
     }
 
-    // Récupérer toutes les transactions d'un utilisateur
-    public List<TransactionModel> getUserTransactions(String userEmail) {
-        UserModel user = userRepository.findByEmail(userEmail).orElse(null);
-        if (user == null) {
-            throw new IllegalArgumentException("L'utilisateur n'existe pas");
-        }
-
-        // Retourne toutes les transactions où l'utilisateur est soit l'expéditeur, soit le destinataire
-        return transactionRepository.findBySenderOrReceiver(user, user);
+    public List<TransactionDTO> getAllTransactions() {
+        List<TransactionModel> transactions = transactionRepository.findAll();
+        List<TransactionDTO> dtos = new ArrayList<>();
+        
+        for (TransactionModel transaction : transactions) {
+        	TransactionDTO dto = new TransactionDTO();
+        	dto.setAmount(transaction.getAmount());
+        	dto.setId(transaction.getId());
+        	dto.setDate(transaction.getDate());
+        	dto.setFee(transaction.getFee());
+        	dto.setDescription(transaction.getDescription());
+        	dto.setSenderMail(transaction.getSender().getEmail());
+        	dto.setReceiverMail(transaction.getReceiver().getEmail());
+        	dtos.add(dto);
+		}
+        
+        return dtos;
     }
 }

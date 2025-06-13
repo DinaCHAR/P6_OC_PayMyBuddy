@@ -14,44 +14,56 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
- /**
-  * Déclare un bean BCryptPasswordEncoder.
-  * Ce composant sera utilisé pour encoder ou vérifier les mots de passe dans l'application,
-  * notamment lors de l'inscription ou de la connexion.
-  */
- @Bean
- BCryptPasswordEncoder passwordEncoder() {
-     return new BCryptPasswordEncoder();
- }
+	/**
+	 * Déclare un bean BCryptPasswordEncoder. Ce composant sera utilisé pour encoder
+	 * ou vérifier les mots de passe dans l'application, notamment lors de
+	 * l'inscription ou de la connexion.
+	 */
+	@Bean
+	BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
- /**
-  * Configure la chaîne de filtres de sécurité utilisée par Spring Security.
-  * Elle définit les règles d'accès, désactive la protection CSRF, et supprime le formulaire de login par défaut.
-  *
-  * @param http Objet HttpSecurity fourni par Spring pour personnaliser la sécurité.
-  * @return un SecurityFilterChain configuré.
-  */
- @Bean
- SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-     http
-         // Désactive la protection CSRF (Cross-Site Request Forgery)
-         // utile lors de tests d'API sans interface HTML (comme avec Postman).
-         .csrf(csrf -> csrf.disable())
+	/**
+	 * Configure la chaîne de filtres de sécurité utilisée par Spring Security. Elle
+	 * définit les règles d'accès, désactive la protection CSRF, et supprime le
+	 * formulaire de login par défaut.
+	 *
+	 * @param http Objet HttpSecurity fourni par Spring pour personnaliser la
+	 *             sécurité.
+	 * @return un SecurityFilterChain configuré.
+	 */
+	@Bean
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				// Désactive la protection CSRF (Cross-Site Request Forgery)
+				// utile lors de tests d'API sans interface HTML (comme avec Postman).
+				.csrf(csrf -> csrf.disable())
 
-         // Autorise certaines URL sans authentification
-         .authorizeHttpRequests(auth -> auth
-             // Autorise librement les routes d'inscription et de connexion utilisateur
-             .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
-             
-             // Toute autre requête doit être authentifiée
-             .anyRequest().authenticated()
-         )
+				// Autorise certaines URL sans authentification
+				.authorizeHttpRequests(auth -> auth
+						// Autorise librement les routes d'inscription et de connexion utilisateur
+						.requestMatchers(
+					            "/api/users/register",
+					            "/api/users/find",
+					            "/api/users/add-connection",
+					            "/api/users/deposit",
+					            "/api/users/withdraw",
+					            "/api/transactions/transfer",
+					            "/api/transactions/user",
+					            "/api/transactions/all",
+					            "/api/account/**",
+					            "/api/connections/**"
+					        ).permitAll()
 
-         // Désactive le formulaire de connexion par défaut fourni par Spring Security
-         // Cela permet de gérer l'authentification manuellement via un contrôleur
-         .formLogin(login -> login.disable());
+						// Toute autre requête doit être authentifiée
+						.anyRequest().authenticated())
 
-     // Construit et retourne la configuration de sécurité
-     return http.build();
- }
+				// Désactive le formulaire de connexion par défaut fourni par Spring Security
+				// Cela permet de gérer l'authentification manuellement via un contrôleur
+				.formLogin(login -> login.disable());
+
+		// Construit et retourne la configuration de sécurité
+		return http.build();
+	}
 }

@@ -3,7 +3,6 @@ package com.openclassrooms.paymybuddy.service;
 import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,24 +13,34 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    public UserModel createUser(String username, String email, String password) {
-        String hashedPassword = passwordEncoder.encode(password);
-        UserModel user = new UserModel(username, email, hashedPassword);
+    public UserModel registerUser(String email, String password) {
+    	UserModel user = new UserModel();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setBalance(0.0);
         return userRepository.save(user);
     }
 
-    public UserModel findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public Optional<UserModel> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
-    public boolean checkPassword(String email, String rawPassword) {
-        Optional<UserModel> optionalUser = userRepository.findByEmail(email);
-        return optionalUser.map(user ->
-            passwordEncoder.matches(rawPassword, user.getPassword())
-        ).orElse(false);
+    public void addConnection(UserModel user, UserModel connection) {
+        user.getConnections().add(connection);
+        userRepository.save(user);
+    }
+
+    public void addFunds(UserModel user, double amount) {
+        user.setBalance(user.getBalance() + amount);
+        userRepository.save(user);
+    }
+
+    public void withdrawFunds(UserModel user, double amount) {
+        if (user.getBalance() >= amount) {
+            user.setBalance(user.getBalance() - amount);
+            userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("Solde insuffisant.");
+        }
     }
 }
-

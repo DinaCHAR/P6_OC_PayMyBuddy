@@ -1,72 +1,69 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.dto.TransactionDTO;
 import com.openclassrooms.paymybuddy.model.TransactionModel;
+import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.service.TransactionService;
+import com.openclassrooms.paymybuddy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-//Indique que cette classe est un contrôleur REST (retourne des objets JSON)
+//Cette classe est un contrôleur REST (retourne des données JSON)
 @RestController
 
-//Préfixe commun à toutes les routes de ce contrôleur
+//Préfixe de toutes les routes définies dans ce contrôleur : /api/transactions
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-	 // Injection du service qui contient la logique métier pour les transactions
-	 @Autowired
-	 private TransactionService transactionService;
-	
+ // Injection du service de transaction
+ @Autowired
+ private TransactionService transactionService;
+
+ // Injection du service utilisateur
+ @Autowired
+ private UserService userService;
+
 	 /**
-	  * Endpoint POST /api/transactions/create
-	  * Permet de créer une nouvelle transaction entre deux utilisateurs.
-	  *
-	  * @param transactionDetails Map contenant senderEmail, receiverEmail, amount, description, date
-	  * @return La transaction créée ou une erreur si la création échoue
+	  * Effectue une transaction entre deux utilisateurs.
+	  * Requête POST vers /api/transactions/transfer
+	  * Reçoit un TransactionDTO dans le corps de la requête.
 	  */
-	 @PostMapping("/create")
-	 public ResponseEntity<TransactionModel> createTransaction(@RequestBody Map<String, Object> transactionDetails) {
-	     try {
-	         // Extraction des informations de la requête
-	         String senderEmail = (String) transactionDetails.get("senderEmail");
-	         String receiverEmail = (String) transactionDetails.get("receiverEmail");
-	         Double amount = Double.valueOf(transactionDetails.get("amount").toString());
-	         String description = (String) transactionDetails.get("description");
-	         String date = (String) transactionDetails.get("date");
+	 @PostMapping("/transfer")
+	 public ResponseEntity<String> transfer(@RequestBody TransactionDTO dto) {
 	
-	         // Appel du service pour créer une transaction
-	         TransactionModel transaction = transactionService.createTransaction(
-	             senderEmail, receiverEmail, amount, description, date
+	     Optional<UserModel> senderOpt = userService.findByEmail(dto.getSenderMail());
+	     Optional<UserModel> receiverOpt = userService.findByEmail(dto.getReceiverMail());
+	
+	     if (senderOpt.isEmpty() || receiverOpt.isEmpty()) {
+	         return ResponseEntity.badRequest().body("Utilisateur émetteur ou destinataire introuvable.");
+	     }
+	
+	     try {
+	         TransactionModel t = transactionService.transfer(
+	             senderOpt.get(),
+	             receiverOpt.get(),
+	             dto.getAmount(),
+	             dto.getDescription()
 	         );
 	
-	         // Retourne la transaction avec un statut HTTP 201 (Created)
-	         return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
-	     } catch (Exception e) {
-	         // En cas d'erreur, retourne un statut HTTP 400 (Bad Request)
-	         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	         return ResponseEntity.ok(
+	             "Transaction réussie : " + t.getAmount() +
+	             " € envoyés avec une commission de " + t.getFee() + " €."
+	         );
+	     } catch (IllegalArgumentException e) {
+	         return ResponseEntity.badRequest().body(e.getMessage());
 	     }
 	 }
 	
 	 /**
-	  * Endpoint GET /api/transactions/user/{email}
-	  * Permet de récupérer toutes les transactions liées à un utilisateur.
-	  *
-	  * @param email Email de l’utilisateur
-	  * @return Liste des transactions ou une erreur si l'utilisateur n'existe pas
+	  * Récupère toutes les transactions enregistrées.
+	  * Requête GET vers /api/transactions/all
 	  */
-	 @GetMapping("/user/{email}")
-	 public ResponseEntity<List<TransactionModel>> getTransactionsByUser(@PathVariable String email) {
-	     try {
-	         // Appel du service pour récupérer les transactions de l'utilisateur
-	         List<TransactionModel> transactions = transactionService.getUserTransactions(email);
-	         return ResponseEntity.ok(transactions);
-	     } catch (Exception e) {
-	         // En cas d'erreur, retourne un statut HTTP 404 (Not Found)
-	         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-	     }
+	 @GetMapping("/all")
+	 public ResponseEntity<?> all() {
+	     return ResponseEntity.ok(transactionService.getAllTransactions());
 	 }
 	}

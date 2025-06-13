@@ -1,70 +1,112 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.dto.UserDTO;
+import com.openclassrooms.paymybuddy.dto.UserResponseDTO;
 import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.Optional;
 
-@RestController // Indique que cette classe gère des requêtes REST
-@RequestMapping("/api/users") // Toutes les routes commencent par /api/users
+// Cette classe est un contrôleur REST
+@RestController
+
+// Définit le préfixe commun de toutes les routes : /api/users
+@RequestMapping("/api/users")
 public class UserController {
 
+    // Injection automatique du service utilisateur
     @Autowired
     private UserService userService;
 
-
     /**
-     * Endpoint pour l'inscription d’un nouvel utilisateur.
-     * POST /api/users/signup
+     * Endpoint pour enregistrer un nouvel utilisateur.
+     * Requête POST vers /api/users/register
+     * Nécessite email et password dans le corps de la requête.
      */
-    @PostMapping("/signup")
-    public ResponseEntity<UserModel> createUser(@RequestBody UserModel user) {
-        try {
-            // Création du nouvel utilisateur via le service
-            UserModel createdUser = userService.createUser(
-                user.getUsername(),
-                user.getEmail(),
-                user.getPassword()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    @PostMapping("/register")
+    public UserResponseDTO register(@RequestBody UserDTO userDTO) {
+        UserModel user = userService.registerUser(userDTO.getEmail(), userDTO.getPassword());
+        return new UserResponseDTO(user.getId(), user.getEmail(), user.getBalance());
+    }
+    /**
+     * Endpoint pour ajouter un ami à la liste de connexions.
+     * Requête POST vers /api/users/add-connection
+     * Nécessite userEmail (celui qui ajoute) et friendEmail (l'ami à ajouter)
+     */
+    @PostMapping("/add-connection")
+    public String addConnection(@RequestBody UserDTO userDTO) {
+
+        // Récupération des deux utilisateurs à partir de leur email
+        Optional<UserModel> userOpt = userService.findByEmail(userDTO.getEmail());
+        Optional<UserModel> friendOpt = userService.findByEmail(userDTO.getFriendEmail());
+
+        // Vérifie si les deux utilisateurs existent avant d’ajouter la connexion
+        if (userOpt.isPresent() && friendOpt.isPresent()) {
+            userService.addConnection(userOpt.get(), friendOpt.get());
+            return "Connexion ajoutée";
         }
+
+        return "Utilisateur ou ami introuvable";
     }
 
     /**
-     * Endpoint pour la connexion (authentification).
-     * POST /api/users/login
-     * Renvoie un token JWT si les identifiants sont valides.
+     * Endpoint pour créditer un utilisateur.
+     * Requête POST vers /api/users/deposit
+     * Nécessite email et montant
      */
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
+    @PostMapping("/deposit")
+    public String deposit(@RequestBody UserDTO userDTO) {
 
-        if (userService.checkPassword(email, password)) {
-            return ResponseEntity.ok("Connexion réussie.");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Identifiants incorrects.");
+        // Recherche de l'utilisateur
+        Optional<UserModel> userOpt = userService.findByEmail(userDTO.getEmail());
+
+        if (userOpt.isPresent()) {
+            userService.addFunds(userOpt.get(), userDTO.getAmount());
+            return "Dépôt effectué";
         }
+
+        return "Utilisateur introuvable";
     }
 
+    /**
+     * Endpoint pour retirer de l'argent du compte utilisateur.
+     * Requête POST vers /api/users/withdraw
+     * Nécessite email et montant
+     */
+    @PostMapping("/withdraw")
+    public String withdraw(@RequestBody UserDTO userDTO) {
+
+        Optional<UserModel> userOpt = userService.findByEmail(userDTO.getEmail());
+
+        if (userOpt.isPresent()) {
+            try {
+                userService.withdrawFunds(userOpt.get(), userDTO.getAmount());
+                return "Retrait effectué";
+            } catch (IllegalArgumentException e) {
+                return e.getMessage(); // Ex : si solde insuffisant
+            }
+        }
+
+        return "Utilisateur introuvable";
+    }
 
     /**
-     * Endpoint pour récupérer un utilisateur à partir de son email.
-     * GET /api/users/find?email=exemple@mail.com
+     * Endpoint pour rechercher un utilisateur à partir de son email.
+     * Requête GET vers /api/users/find?email=...
      */
     @GetMapping("/find")
-    public ResponseEntity<UserModel> getUserByEmail(@RequestParam String email) {
-        try {
-            UserModel user = userService.findByEmail(email);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<?> findUser(@RequestParam("email") String email) {
+        Optional<UserModel> userOpt = userService.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            UserModel user = userOpt.get();
+            UserResponseDTO dto = new UserResponseDTO(user.getId(), user.getEmail(), user.getBalance());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.status(404).body("Utilisateur introuvable");
         }
     }
 }
