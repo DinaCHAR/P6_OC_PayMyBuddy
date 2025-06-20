@@ -1,15 +1,98 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Modifier Profil</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier Profil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafafa;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: black;
+        }
+
+        nav a.active {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            background-color: #f9a825;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
 <body>
-<h2>Modifier vos informations</h2>
-<form th:action="@{/profile/save}" method="get">
-    <input type="hidden" name="email" th:value="${user.email}" />
-    <label>Mot de passe :</label>
-    <input type="password" name="password" required th:value="${user.password}" />
-    <br/>
-    <br/>
-    <button type="submit">Enregistrer</button>
-</form>
-</body>
+
+		<nav>
+		    <div>Pay My Buddy</div>
+		    <div>
+		        <a th:href="@{/dashboard(email=${user.email})}">Transférer</a>
+		        <a th:href="@{/profile(email=${user.email})}" class="active">Profil</a>
+		        <a th:href="@{/add-connection(email=${user.email})}">Ajouter relation</a>
+		        <a href="/logout">Se déconnecter</a>
+		    </div>
+		</nav>
+		
+		<div class="container">
+		    <h2>Modifier vos informations</h2>
+		    <form th:action="@{/profile/save}" method="get">
+		        <input type="hidden" name="email" th:value="${user.email}" />
+		        <label>Mot de passe :</label>
+		        <input type="password" name="password" required th:value="${user.password}" />
+		        <button type="submit">Enregistrer</button>
+		    </form>
+		</div>
+		
+		</body>
 </html>

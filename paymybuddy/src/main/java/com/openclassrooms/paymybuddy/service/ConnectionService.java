@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy.service;
 
+import com.openclassrooms.paymybuddy.dto.ConnectionDTO;
 import com.openclassrooms.paymybuddy.model.ConnectionModel;
 import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.repository.ConnectionRepository;
@@ -7,8 +8,10 @@ import com.openclassrooms.paymybuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service // Indique que c’est une classe de service métier
 public class ConnectionService {
@@ -18,6 +21,9 @@ public class ConnectionService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private UserService userService;
 
     // Récupérer les connexions d'un utilisateur par son email
     public List<ConnectionModel> getConnections(String userEmail) {
@@ -33,32 +39,46 @@ public class ConnectionService {
         }
     }
 
-    // Ajouter une connexion entre deux utilisateurs
+ // Ajouter une nouvelle connexion entre deux utilisateurs
     public boolean addConnection(String userEmail, String connectionEmail) {
-        // Recherche des deux utilisateurs par leur email
+        // Recherche des utilisateurs correspondant aux emails fournis
         Optional<UserModel> optionalUser = userRepository.findByEmail(userEmail);
         Optional<UserModel> optionalConnection = userRepository.findByEmail(connectionEmail);
 
-        // Vérification si les utilisateurs existent et ne sont pas égaux
+        // Vérifie que les deux utilisateurs existent
         if (optionalUser.isPresent() && optionalConnection.isPresent()) {
             UserModel user = optionalUser.get();
             UserModel connection = optionalConnection.get();
 
-            if (user.equals(connection)) {
-                return false; // Ne pas connecter un utilisateur à lui-même
-            }
+            // Refuse la connexion à soi-même
+            if (user.equals(connection)) return false;
 
-            // Vérifier si la connexion existe déjà
-            if (connectionRepository.existsByUserAndConnection(user, connection)) {
-                return false; // Connexion déjà existante
-            }
+            // Refuse une connexion déjà existante
+            if (connectionRepository.existsByUserAndConnection(user, connection)) return false;
 
-            // Créer une nouvelle connexion et la sauvegarder
-            ConnectionModel newConnection = new ConnectionModel(user, connection);
-            connectionRepository.save(newConnection);
+            // Crée et enregistre la nouvelle connexion
+            connectionRepository.save(new ConnectionModel(user, connection));
             return true;
         }
 
-        return false; // Si l'un des utilisateurs n'existe pas, retourner false
+        // Retourne false si l'un des deux utilisateurs n'existe pas
+        return false;
+    }
+
+    // Récupère les connexions d'un utilisateur et les transforme en DTO
+    public List<ConnectionDTO> getConnectionsDTO(String userEmail) {
+        // Recherche de l'utilisateur à partir de son email
+        Optional<UserModel> userOpt = userRepository.findByEmail(userEmail);
+        if (userOpt.isEmpty()) return new ArrayList<>(); // Retourne une liste vide si absent
+
+        UserModel user = userOpt.get();
+
+        // Récupération des connexions liées à l'utilisateur
+        List<ConnectionModel> connections = connectionRepository.findByUser(user);
+
+        // Transformation en objets DTO pour l'affichage ou le transfert vers la couche web
+        return connections.stream()
+            .map(conn -> new ConnectionDTO(user.getEmail(), conn.getConnection().getEmail()))
+            .collect(Collectors.toList());
     }
 }

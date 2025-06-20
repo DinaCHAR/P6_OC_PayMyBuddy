@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes Relations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        nav {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: black;
+        }
+
+        nav a.active {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #007bff;
+        }
+    </style>
+</head>
+		<body>
+		
+			<nav>
+			    <div>Pay My Buddy</div>
+			    <div>
+			        <a th:href="@{/dashboard(email=${userEmail})}">Transférer</a>
+			        <a th:href="@{/profile(email=${userEmail})}">Profil</a>
+			        <a th:href="@{/add-connection(email=${userEmail})}">Ajouter relation</a>
+			        <a th:href="@{/connections(email=${userEmail})}" class="active">Voir mes relations</a>
+			        <a href="/logout">Se déconnecter</a>
+			    </div>
+			</nav>
+			
+			<div class="container">
+			    <h2>Mes Relations</h2>
+			    <ul>
+			        <li th:each="conn : ${connections}" th:text="${conn.connectionEmail}">adresse@mail.com</li>
+			    </ul>
+			</div>
+		
+		</body>
+</html>

@@ -55,10 +55,23 @@ public class SecurityConfig {
 					            "/api/account/**",
 					            "/api/connections/**",
 					            "/login", 
-					            "/profile", 
+					            "/profile",
+					            "/register",
 					            "/profile/edit", 
-					            "/profile/save"
-					        ).permitAll()
+					            "/profile/save",
+					            "/profile/**",
+					            "/add-connection",
+					            "/add-connection/**",
+					            "/connections",
+					            "/dashboard",
+					            "/dashboard/**",
+					            "/transfer",
+					            "/css/**",
+					            "/js/**", 
+					            "/images/**",
+					            "/rest/transfer",
+					            "/dashboard/transfer"
+					       ).permitAll()
 
 						// Toute autre requête doit être authentifiée
 						.anyRequest().authenticated())

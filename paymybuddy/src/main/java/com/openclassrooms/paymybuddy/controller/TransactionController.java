@@ -31,39 +31,26 @@ public class TransactionController {
 	  * Requête POST vers /api/transactions/transfer
 	  * Reçoit un TransactionDTO dans le corps de la requête.
 	  */
-	 @PostMapping("/transfer")
+	 @PostMapping("/rest/transfer")
 	 public ResponseEntity<String> transfer(@RequestBody TransactionDTO dto) {
-	
 	     Optional<UserModel> senderOpt = userService.findByEmail(dto.getSenderMail());
 	     Optional<UserModel> receiverOpt = userService.findByEmail(dto.getReceiverMail());
 	
-	     if (senderOpt.isEmpty() || receiverOpt.isEmpty()) {
-	         return ResponseEntity.badRequest().body("Utilisateur émetteur ou destinataire introuvable.");
+	     if (senderOpt.isPresent() && receiverOpt.isPresent()) {
+	         transactionService.transfer(senderOpt.get(), receiverOpt.get(), dto.getAmount(), dto.getDescription());
+	         return ResponseEntity.ok("Transaction effectuée !");
 	     }
 	
-	     try {
-	         TransactionModel t = transactionService.transfer(
-	             senderOpt.get(),
-	             receiverOpt.get(),
-	             dto.getAmount(),
-	             dto.getDescription()
-	         );
-	
-	         return ResponseEntity.ok(
-	             "Transaction réussie : " + t.getAmount() +
-	             " € envoyés avec une commission de " + t.getFee() + " €."
-	         );
-	     } catch (IllegalArgumentException e) {
-	         return ResponseEntity.badRequest().body(e.getMessage());
-	     }
+	     return ResponseEntity.badRequest().body("Erreur : utilisateur introuvable.");
 	 }
 	
-	 /**
-	  * Récupère toutes les transactions enregistrées.
-	  * Requête GET vers /api/transactions/all
-	  */
-	 @GetMapping("/all")
-	 public ResponseEntity<?> all() {
-	     return ResponseEntity.ok(transactionService.getAllTransactions());
-	 }
+		
+		 /**
+		  * Récupère toutes les transactions enregistrées.
+		  * Requête GET vers /api/transactions/all
+		  */
+		 @GetMapping("/all")
+		 public ResponseEntity<?> all() {
+		     return ResponseEntity.ok(transactionService.getAllTransactions());
+		 }
 	}
