@@ -39,30 +39,39 @@ public class ConnectionService {
         }
     }
 
- // Ajouter une nouvelle connexion entre deux utilisateurs
     public boolean addConnection(String userEmail, String connectionEmail) {
-        // Recherche des utilisateurs correspondant aux emails fournis
+        // Empêche les emails vides ou null
+        if (userEmail == null || connectionEmail == null || userEmail.isBlank() || connectionEmail.isBlank()) {
+            return false;
+        }
+
+        // Refuse la connexion à soi-même
+        if (userEmail.equalsIgnoreCase(connectionEmail)) {
+            return false;
+        }
+
         Optional<UserModel> optionalUser = userRepository.findByEmail(userEmail);
         Optional<UserModel> optionalConnection = userRepository.findByEmail(connectionEmail);
 
         // Vérifie que les deux utilisateurs existent
-        if (optionalUser.isPresent() && optionalConnection.isPresent()) {
-            UserModel user = optionalUser.get();
-            UserModel connection = optionalConnection.get();
-
-            // Refuse la connexion à soi-même
-            if (user.equals(connection)) return false;
-
-            // Refuse une connexion déjà existante
-            if (connectionRepository.existsByUserAndConnection(user, connection)) return false;
-
-            // Crée et enregistre la nouvelle connexion
-            connectionRepository.save(new ConnectionModel(user, connection));
-            return true;
+        if (optionalUser.isEmpty() || optionalConnection.isEmpty()) {
+            return false;
         }
 
-        // Retourne false si l'un des deux utilisateurs n'existe pas
-        return false;
+        UserModel user = optionalUser.get();
+        UserModel connection = optionalConnection.get();
+
+        // Refuse une connexion déjà existante
+        boolean alreadyExists = connectionRepository.existsByUserAndConnection(user, connection);
+        if (alreadyExists) {
+            return false;
+        }
+
+        // Crée et enregistre la nouvelle connexion
+        ConnectionModel newConnection = new ConnectionModel(user, connection);
+        connectionRepository.save(newConnection);
+
+        return true;
     }
 
     // Récupère les connexions d'un utilisateur et les transforme en DTO

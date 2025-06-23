@@ -96,7 +96,7 @@ public class TransactionControllerTest {
         mockMvc.perform(post("/api/transactions/rest/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().is3xxRedirection())
+                .andExpect(status().is3xxRedirection())                
                 .andExpect(redirectedUrl("/login"));
 
         // Vérifie qu’aucune transaction n’a été créée

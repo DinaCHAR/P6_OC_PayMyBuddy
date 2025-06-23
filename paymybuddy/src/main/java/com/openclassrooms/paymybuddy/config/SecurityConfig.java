@@ -69,7 +69,7 @@ public class SecurityConfig {
 					            "/css/**",
 					            "/js/**", 
 					            "/images/**",
-					            "/rest/transfer",
+					            "/api/transactions/rest/transfer",
 					            "/dashboard/transfer"
 					       ).permitAll()
 

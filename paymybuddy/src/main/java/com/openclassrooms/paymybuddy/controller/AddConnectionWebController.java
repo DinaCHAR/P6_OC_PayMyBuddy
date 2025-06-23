@@ -30,13 +30,17 @@ public class AddConnectionWebController {
     public String handleAddConnection(@RequestParam String userEmail,
                                       @RequestParam String connectionEmail,
                                       RedirectAttributes redirectAttributes) {
-        // Tente d'ajouter une nouvelle connexion via le service
         boolean success = connectionService.addConnection(userEmail, connectionEmail);
 
-        // Ajoute l'email de l'utilisateur aux attributs de redirection
-        redirectAttributes.addAttribute("email", userEmail);
+        //redirectAttributes.addAttribute("email", userEmail);
+        
+        if (!success) {
+            redirectAttributes.addFlashAttribute("errorMessage", "La connexion existe déjà ou une erreur est survenue.");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Connexion ajoutée avec succès !");
+        }
 
-        return "redirect:/connections"; // Redirige vers la liste des connexions
+        return "redirect:/connections?email=" + userEmail;
     }
 
     @GetMapping("/connections")
