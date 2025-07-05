@@ -5,10 +5,12 @@ import com.openclassrooms.paymybuddy.model.UserModel;
 import com.openclassrooms.paymybuddy.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service // Indique que c’est un service métier géré par Spring
+@Transactional
 public class AccountService {
 
     @Autowired // Injection automatique du repository

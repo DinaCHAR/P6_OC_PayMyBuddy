@@ -1,5 +1,8 @@
 package com.openclassrooms.paymybuddy.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,8 +26,8 @@ public class AccountModel {
     @JoinColumn(name = "user_id", nullable = false, unique = true)// clé étrangère
     private UserModel user;
 
-    @Column(nullable = false) // Colonne non nulle
-    private double balance = 0.0; // Solde du compte, initialisé à 0, represente le solde dans l'app
+    @Column(nullable = false, precision = 10, scale = 2) // Colonne non nulle + correction après oral montant avec 2 décimales
+    private BigDecimal balance = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);; // Solde du compte, initialisé à 0, represente le solde dans l'app
 
     // Constructeur par defaut
     public AccountModel() {
@@ -34,7 +37,7 @@ public class AccountModel {
     //Constructeur avec utilisateur, utile pour lier un compte à un utilisateur lors de la création
     public AccountModel(UserModel user) {
         this.user = user;
-        this.balance = 0.0; // Initialisation du solde
+        this.balance = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP); //Correction apres oral 2 decimal Initialisation du solde
     }
 
     public Integer getId() {
@@ -53,23 +56,27 @@ public class AccountModel {
         this.user = user;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
-        this.balance = balance;
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance.setScale(2, RoundingMode.HALF_UP);
     }
-
+    
  // Méthode pour créditer le compte (ajouter de l'argent)
     public void credit(double amount) {
-        this.balance += amount;
+    	//correction pour avoir 2 decimal pour credite
+    	BigDecimal credit = BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP);
+        this.balance = this.balance.add(credit);
     }
 
  // Méthode pour débiter le compte (retirer de l'argent)
     public void debit(double amount) {
-        if (this.balance >= amount) {
-            this.balance -= amount; // Débit autorisé
+    	//correction pour avoir 2 decimal pour debiter
+    	BigDecimal debit = BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP);
+        if (this.balance.compareTo(debit) >= 0) {
+            this.balance = this.balance.subtract(debit); // Débit autorisé
         } else {
         	// Si le solde est insuffisant, on lance une exception
             throw new IllegalArgumentException("Solde insuffisant.");

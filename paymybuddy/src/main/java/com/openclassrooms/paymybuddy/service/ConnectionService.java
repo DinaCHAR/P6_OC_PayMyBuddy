@@ -7,6 +7,7 @@ import com.openclassrooms.paymybuddy.repository.ConnectionRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class ConnectionService {
         }
     }
 
+    @Transactional
     public boolean addConnection(String userEmail, String connectionEmail) {
         // Empêche les emails vides ou null
         if (userEmail == null || connectionEmail == null || userEmail.isBlank() || connectionEmail.isBlank()) {

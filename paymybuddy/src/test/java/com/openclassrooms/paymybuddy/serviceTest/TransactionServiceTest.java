@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,11 +38,13 @@ public class TransactionServiceTest {
         // Arrange
         UserModel sender = new UserModel();
         sender.setEmail("sender@test.com");
-        sender.setBalance(100.0);
+        //CORRECTION APRES ORAL AJOUT SEULEMENT DE DEUX DECIMAL
+        sender.setBalance(BigDecimal.valueOf(100.0));
 
         UserModel receiver = new UserModel();
         receiver.setEmail("receiver@test.com");
-        receiver.setBalance(0.0);
+        //CORRECTION APRES ORAL AJOUT SEULEMENT DE DEUX DECIMAL
+        receiver.setBalance(BigDecimal.valueOf(0.0));
 
         // Simuler les sauvegardes
         when(userRepository.save(any(UserModel.class))).thenAnswer(invocation -> invocation.getArgument(0));

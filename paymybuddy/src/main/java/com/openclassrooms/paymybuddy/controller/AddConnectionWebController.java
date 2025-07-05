@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -44,13 +45,20 @@ public class AddConnectionWebController {
     }
 
     @GetMapping("/connections")
-    public String showConnections(@RequestParam String email, Model model) {
+    public String showConnections(@RequestParam String email, Model model, @ModelAttribute("message") String message, @ModelAttribute("errorMessage") String errorMessage) {
         // Récupèrer les connexions de l'utilisateur sous forme de DTO
         List<ConnectionDTO> connections = connectionService.getConnectionsDTO(email);
 
         // Ajouter les connexions et l'adresse email au modèle pour la vue
         model.addAttribute("connections", connections);
         model.addAttribute("userEmail", email);
+        
+        if (!message.isBlank()) {
+            model.addAttribute("message", message);
+        }
+        if (!errorMessage.isBlank()) {
+            model.addAttribute("errorMessage", errorMessage);
+        }
 
         return "connections"; // Retourner la page listant les connexions
     }

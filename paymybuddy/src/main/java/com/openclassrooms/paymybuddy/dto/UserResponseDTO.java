@@ -1,13 +1,16 @@
 package com.openclassrooms.paymybuddy.dto;
 
+import java.math.BigDecimal;
+
 import com.openclassrooms.paymybuddy.model.UserModel;
 
 public class UserResponseDTO {
     private Long id;
     private String email;
-    private double balance;
+    //CORRECTION APRES ORAL AJOUT DE DEUX DECIMAL
+    private BigDecimal balance;
 
-    public UserResponseDTO(Long id, String email, double balance) {
+    public UserResponseDTO(Long id, String email, BigDecimal balance) {
         this.id = id;
         this.email = email;
         this.balance = balance;
@@ -27,7 +30,7 @@ public class UserResponseDTO {
         return email;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 }

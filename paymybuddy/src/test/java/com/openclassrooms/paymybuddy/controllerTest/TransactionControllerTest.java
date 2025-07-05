@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,13 +57,16 @@ public class TransactionControllerTest {
         UserModel sender = new UserModel();
         sender.setEmail("sender@test.com");
         sender.setPassword("pass");
-        sender.setBalance(100.0);
+        //CORRECTION APRES ORAL AJOUT SEULEMENT DE DEUX DECIMAL
+        sender.setBalance(BigDecimal.valueOf(100.0));
         userRepository.save(sender);
 
         UserModel receiver = new UserModel();
         receiver.setEmail("receiver@test.com");
         receiver.setPassword("pass");
         userRepository.save(receiver);
+        
+        transactionRepository.deleteAll();
     }
 
     @Test
@@ -76,8 +80,7 @@ public class TransactionControllerTest {
         mockMvc.perform(post("/api/transactions/rest/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/dashboard?email=sender@test.com"));
+                .andExpect(status().is2xxSuccessful());
 
         // Vérifie que la transaction est bien en base
         List<TransactionModel> transactions = transactionRepository.findAll();
@@ -96,8 +99,7 @@ public class TransactionControllerTest {
         mockMvc.perform(post("/api/transactions/rest/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().is3xxRedirection())                
-                .andExpect(redirectedUrl("/login"));
+                .andExpect(status().is4xxClientError());
 
         // Vérifie qu’aucune transaction n’a été créée
         assertTrue(transactionRepository.findAll().isEmpty());

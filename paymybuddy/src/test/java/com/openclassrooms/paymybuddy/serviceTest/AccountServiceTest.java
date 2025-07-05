@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,7 @@ public class AccountServiceTest {
         UserModel user = new UserModel();
         AccountModel account = new AccountModel();
         account.setUser(user);
-        account.setBalance(100.0);
+        account.setBalance(BigDecimal.valueOf(100.0));
 
         when(accountRepository.findByUser(user)).thenReturn(Optional.of(account));
         when(accountRepository.save(any(AccountModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -49,7 +50,7 @@ public class AccountServiceTest {
         UserModel user = new UserModel();
         AccountModel account = new AccountModel();
         account.setUser(user);
-        account.setBalance(100.0);
+        account.setBalance(BigDecimal.valueOf(100.0));
 
         when(accountRepository.findByUser(user)).thenReturn(Optional.of(account));
         when(accountRepository.save(any(AccountModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -64,7 +65,7 @@ public class AccountServiceTest {
         UserModel user = new UserModel();
         AccountModel account = new AccountModel();
         account.setUser(user);
-        account.setBalance(10.0);
+        account.setBalance(BigDecimal.valueOf(10.0));
 
         when(accountRepository.findByUser(user)).thenReturn(Optional.of(account));
 

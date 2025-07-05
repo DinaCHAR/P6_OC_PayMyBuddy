@@ -48,7 +48,7 @@ public class AccountController {
             .map(account -> {
                 AccountResponseDTO dto = new AccountResponseDTO(
                     userOpt.get().getEmail(),
-                    account.getBalance()
+                    account.getBalance().doubleValue()
                 );
                 return ResponseEntity.ok(dto);
             })

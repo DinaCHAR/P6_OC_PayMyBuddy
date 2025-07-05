@@ -7,11 +7,14 @@ import com.openclassrooms.paymybuddy.repository.TransactionRepository;
 import com.openclassrooms.paymybuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 @Service // Indique que cette classe est un service Spring gérant la logique métier liée aux transactions
 public class TransactionService {
@@ -23,30 +26,34 @@ public class TransactionService {
     private UserRepository userRepository;
 
     // Effectue un transfert d'argent entre deux utilisateurs
+    //CORRECTION APRES ORAL/ AJOUT DE TRANSACTIONAL GERER LES TRANSACTIONS QUI INTERAGISSE AVEC LA BDD
+    @Transactional
     public TransactionModel transfer(UserModel sender, UserModel receiver, double amount, String description) {
-        double fee = amount * 0.005; // Calcul des frais de transaction : 0,5%
-        double total = amount + fee; // Montant total à débiter, incluant les frais
+        BigDecimal amountBD = BigDecimal.valueOf(amount);
+        BigDecimal fee = amountBD.multiply(BigDecimal.valueOf(0.005)).setScale(2, RoundingMode.HALF_UP); // Calcul des frais de transaction : 0,5%
+        BigDecimal total = amountBD.add(fee); // Montant total à débiter, incluant les frais
 
         // Vérifie si l'expéditeur a assez de solde pour couvrir le montant + frais
-        if (sender.getBalance() < total) {
+        if (sender.getBalance().compareTo(total) < 0) { // CORRECTION APRES ORAL
             throw new IllegalArgumentException("Solde insuffisant pour effectuer la transaction.");
         }
 
         // Débit du total depuis le compte de l'expéditeur
-        sender.setBalance(sender.getBalance() - total);
+        sender.setBalance(sender.getBalance().subtract(total)); // ERREUR corrigee ici
         // Crédit du montant (hors frais) sur le compte du destinataire
-        receiver.setBalance(receiver.getBalance() + amount);
+        receiver.setBalance(receiver.getBalance().add(amountBD));
 
         // Sauvegarde les nouveaux soldes des deux utilisateurs
         userRepository.save(sender);
         userRepository.save(receiver);
 
-        // Création et enregistrement de l'objet Transaction
+        // Création et enregistrement de l'objet TransactionModel (à compléter si nécessaire)
         TransactionModel transaction = new TransactionModel();
         transaction.setSender(sender);
         transaction.setReceiver(receiver);
-        transaction.setAmount(amount);
-        transaction.setFee(fee);
+        //CORRECTION APRES ORAL 
+        transaction.setAmount(amountBD.doubleValue());
+        transaction.setFee(fee.doubleValue());
         transaction.setDescription(description);
         transaction.setDate(LocalDateTime.now()); // Date de la transaction
 

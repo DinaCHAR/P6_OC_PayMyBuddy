@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +50,8 @@ public class UserControllerTest {
 	    public void testFindUser_Success() {
 	        UserModel user = new UserModel();
 	        user.setEmail("test@example.com");
-	        user.setBalance(100.0);
+	        //CORRECTION APRES ORAL AJOUT SEULEMENT DE DEUX DECIMAL
+	        user.setBalance(BigDecimal.valueOf(100.0));
 
 	        when(userService.findByEmail("test@example.com")).thenReturn(Optional.of(user));
 
@@ -137,7 +139,8 @@ public class UserControllerTest {
 	        // Arrange
 	        UserModel user = new UserModel();
 	        user.setEmail("test@example.com");
-	        user.setBalance(100.0);
+	        //CORRECTION APRES ORAL AJOUT SEULEMENT DE DEUX DECIMAL
+	        user.setBalance(BigDecimal.valueOf(100.0));
 
 	        when(userService.findByEmail("test@example.com")).thenReturn(Optional.of(user));
 	        doThrow(new IllegalArgumentException("Solde insuffisant"))

@@ -1,6 +1,8 @@
 package com.openclassrooms.paymybuddy.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -13,7 +15,9 @@ public class UserModel {
 
     private String email;
     private String password;
-    private double balance;
+    //CORRECTION APRES ORAL METTRE DEUX DECIMAL ET FAIRE EN SORTE QUE LE MONTANT NE SOIT PAS NULL
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal balance;
 
     @ManyToMany
     @JoinTable(
@@ -47,12 +51,12 @@ public class UserModel {
 		this.password = password;
 	}
 
-	public double getBalance() {
-		return balance;
+	public BigDecimal getBalance() {
+	    return balance;
 	}
 
-	public void setBalance(double balance) {
-		this.balance = balance;
+	public void setBalance(BigDecimal balance) {
+	    this.balance = balance;
 	}
 
 	public List<UserModel> getConnections() {
