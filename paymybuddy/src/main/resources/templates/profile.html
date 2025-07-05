@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Profil - Pay My Buddy</title>
@@ -56,6 +56,19 @@
             cursor: pointer;
             margin-top: 20px;
         }
+        .password-toggle {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        .visually-hidden {
+            position: absolute;
+            left: -10000px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -71,14 +84,40 @@
 
 <div class="container">
     <div class="profile-box">
-        <div class="profile-item"><span class="label">Username</span> <span>@username</span></div>
-        <div class="profile-item"><span class="label">Mail</span> <span th:text="${user.email}">email@test.com</span></div>
-        <div class="profile-item"><span class="label">Mot de passe</span> <span>mot de passe</span></div>
+        <div class="profile-item">
+            <label for="username" class="visually-hidden">Nom d'utilisateur</label>
+            <span class="label">Username</span>
+            <span id="username" aria-label="Nom d'utilisateur">@username</span>
+        </div>
+
+        <div class="profile-item">
+            <label for="email" class="visually-hidden">Adresse e-mail</label>
+            <span class="label">Mail</span>
+            <span id="email" th:text="${user.email}" aria-label="Adresse e-mail">email@test.com</span>
+        </div>
+
+        <div class="profile-item">
+            <label for="password" class="visually-hidden">Mot de passe</label>
+            <span class="label">Mot de passe</span>
+            <input type="password" id="password" value="motdepasse" aria-label="Mot de passe" style="font-size: 16px; padding: 2px 5px;" readonly />
+            <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Afficher ou masquer le mot de passe"
+                👁️
+            </button>
+        </div>
+
         <form th:action="@{/profile/edit}" method="get">
-		    <input type="hidden" name="email" th:value="${user.email}" />
-		    <button type="submit" class="modify-btn">Modifier</button>
-		</form>
+            <input type="hidden" name="email" th:value="${user.email}" />
+            <button type="submit" class="modify-btn">Modifier</button>
+        </form>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const type = input.getAttribute('type');
+        input.setAttribute('type', type === 'password' ? 'text' : 'password');
+    }
+</script>
 </body>
 </html>

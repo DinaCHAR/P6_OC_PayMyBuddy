@@ -32,7 +32,8 @@ public class RegisterController {
     }
 
     @GetMapping("/register")
-    public String showRegisterForm() {
+    public String showRegisterForm(Model model) {
+    	 model.addAttribute("success", "Inscription réussie !");
         return "register"; // Affiche le formulaire d'inscription
     }
 }

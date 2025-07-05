@@ -57,6 +57,7 @@ public class TransactionWebController {
         model.addAttribute("user", senderOpt.orElse(null));
         model.addAttribute("connections", connectionService.getConnectionsDTO(email));
         model.addAttribute("transactions", transactionService.getTransactionsByUserEmail(email));
+        model.addAttribute("success", "Transfert effectué avec succès !");
         return "dashboard"; // Affiche la vue dashboard avec le message d'erreur
     }
 }

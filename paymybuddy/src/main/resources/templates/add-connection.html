@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Ajouter une relation</title>
@@ -75,6 +75,20 @@
             color: green;
             margin-bottom: 15px;
         }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+        }
+
+        .fade-out {
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
     </style>
 </head>
 <body>
@@ -88,20 +102,49 @@
         <a href="/logout">Se déconnecter</a>
     </div>
 </nav>
-	
-	<div class="container">
-	    <div class="box">
-	        <form th:action="@{/add-connection}" method="post">
-	            <input type="hidden" name="userEmail" th:value="${userEmail}" />
-	            <label>Chercher une relation</label>
-	            <input type="email" name="connectionEmail" placeholder="Saisir une adresse mail" required />
-	            <button type="submit">Ajouter</button>
-	        </form>
-	     
-        		<div th:if="${message}" class="success-message" aria-live="polite" th:text="${message}"></div>
 
-        		<div th:if="${errorMessage}" class="error-message" aria-live="assertive" th:text="${errorMessage}"></div>
-	    </div>
-	</div>
-	</body>
+<div class="container">
+    <div class="box">
+        <form th:action="@{/add-connection}" method="post" aria-labelledby="form-title">
+            <h2 id="form-title" class="sr-only">Ajouter une relation</h2>
+            <input type="hidden" name="userEmail" th:value="${userEmail}" />
+
+            <label for="connectionEmail">Chercher une relation</label>
+            <input type="email" id="connectionEmail" name="connectionEmail"
+                   placeholder="Saisir une adresse mail"
+                   aria-required="true"
+                   aria-label="Saisir l'adresse mail de la relation"
+                   required />
+
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <!-- Message de succès -->
+        <div id="successMessage" th:if="${message}" class="success-message" role="status" aria-live="polite" th:text="${message}"></div>
+
+        <!-- Message d'erreur -->
+        <div id="errorMessage" th:if="${errorMessage}" class="error-message" role="alert" aria-live="assertive" th:text="${errorMessage}"></div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const success = document.getElementById('successMessage');
+        const error = document.getElementById('errorMessage');
+
+        if (success) {
+            setTimeout(() => {
+                success.classList.add('fade-out');
+            }, 3000); // Disparition après 3 secondes
+        }
+
+        if (error) {
+            setTimeout(() => {
+                error.classList.add('fade-out');
+            }, 4000); // Disparition après 4 secondes
+        }
+    });
+</script>
+
+</body>
 </html>

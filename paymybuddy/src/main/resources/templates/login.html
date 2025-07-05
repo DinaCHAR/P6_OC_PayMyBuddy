@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Connexion - Pay My Buddy</title>
@@ -53,21 +53,45 @@
             color: red;
             margin-top: 10px;
         }
+        label {
+            display: none;
+        }
+        .register-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
     </style>
-		</head>
-			<body>
-			    <div class="login-container">
-			        <button class="logo-button">Pay My Buddy</button>
-			
-			        <form th:action="@{/login}" method="post">
-			            <input type="email" name="email" placeholder="Mail" required /><br/>
-			            <input type="password" name="password" placeholder="Mot de passe" required /><br/>
-			            <button type="submit">Se connecter</button>
-			        </form>
-			
-			        <div class="error-message" th:if="${error}">
-			            <p th:text="${error}"></p>
-			        </div>
-			    </div>
-			</body>
-		</html>
+</head>
+<body>
+    <div class="login-container">
+        <button class="logo-button" aria-disabled="true">Pay My Buddy</button>
+
+        <form th:action="@{/login}" method="post" aria-labelledby="form-title">
+            <h1 id="form-title" class="sr-only">Connexion</h1>
+
+            <label for="email">Adresse e-mail</label>
+            <input type="email" id="email" name="email" placeholder="Mail" required aria-required="true" /><br/>
+
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" placeholder="Mot de passe" required aria-required="true" /><br/>
+
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <div class="register-link" aria-label="Lien vers la page d'inscription">
+            Vous n'avez pas de compte ? <a th:href="@{/register}">Créer un compte</a>
+        </div>
+
+        <div class="error-message" th:if="${error}" role="alert" aria-live="assertive">
+            <p th:text="${error}"></p>
+        </div>
+    </div>
+</body>
+</html>

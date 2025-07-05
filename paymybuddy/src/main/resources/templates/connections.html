@@ -72,9 +72,9 @@
 			
 			<div class="container">
 			    <h2>Mes Relations</h2>
-			    <ul>
-			        <li th:each="conn : ${connections}" th:text="${conn.connectionEmail}">adresse@mail.com</li>
-			    </ul>
+			    <ul aria-label="Mes Relations">
+				    <li th:each="conn : ${connections}" th:text="${conn.connectionEmail}">adresse@mail.com</li>
+				</ul>
 			</div>
 		
 		</body>
